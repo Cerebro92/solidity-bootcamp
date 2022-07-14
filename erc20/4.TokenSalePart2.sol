@@ -32,7 +32,7 @@ contract GDCToken is ERC20 {
         uint256 amount
     ) internal view override {
         if (address(this) == to) {
-            uint256 requiredEther = _tokenToEther(amount, 5);
+            uint256 requiredEther = _tokenToWei(amount, 5);
             if (address(this).balance <= requiredEther) {
                 revert InsufficientBalance({
                     available: address(this).balance,
@@ -50,21 +50,25 @@ contract GDCToken is ERC20 {
         uint256 amount
     ) internal override {
         if (address(this) == to) {
-            uint256 requiredEther = _tokenToEther(amount, 5);
+            uint256 requiredEther = _tokenToWei(amount, 5);
             payable(from).transfer(requiredEther);
         }
     }
 
-    function _tokenToEther(uint256 amount, uint256 conversionRate)
+    /** Token to Wei conversino
+     */
+    function _tokenToWei(uint256 amount, uint256 conversionRate)
         internal
         pure
         returns (uint256)
     {
-        uint256 requiredEther = ((conversionRate / 10) * amount * 10**18) /
+        uint256 weiRequired = ((conversionRate / 10) * amount * 10**18) /
             (1000 * 10**18);
-        return requiredEther;
+        return weiRequired;
     }
 
+    /** Wei to token conversino
+     */
     function _weiToToken(uint256 paymentInWei) internal pure returns (uint256) {
         uint256 tokens = (paymentInWei * 1000 * 10**18) / 10**18;
         return tokens;
@@ -155,10 +159,17 @@ contract GDCToken is ERC20 {
         address buyer,
         uint256 tokens
     ) private returns (bool) {
-        uint256 requiredWei = _weiToToken(tokens);
+        uint256 requiredWei = _tokenToWei(tokens, 10);
         payable(lender).transfer(requiredWei);
         _transfer(lender, buyer, tokens);
         _spendAllowance(lender, address(this), tokens);
+        return true;
+    }
+
+    /** Withdraw ethereum from contract to the owner of contract.
+     */
+    function withdraw() public returns (bool) {
+        payable(_manager).transfer(address(this).balance);
         return true;
     }
 }
