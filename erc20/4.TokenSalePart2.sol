@@ -169,6 +169,8 @@ contract GDCToken is ERC20 {
     /** Withdraw ethereum from contract to the owner of contract.
      */
     function withdraw() public returns (bool) {
+        address sender = _msgSender();
+        require(sender == _manager, "only manager can withdraw from contract");
         payable(_manager).transfer(address(this).balance);
         return true;
     }
