@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./BlackToken.sol";
 
-contract ComplexNFT is ERC721 {
+contract BlackNFT is ERC721 {
     BlackToken blackToken;
     address public manager;
     uint256 public tokenSupply = 1;
